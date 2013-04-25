@@ -8,6 +8,7 @@
   (define extend_far 400)
   (define oxide_thickness 3)
   (define ot oxide_thickness)
+  (define delta (+ ot 1)) ; for finding Al bodies
 
 ; Create barrier. First create right, then mirror to create left.
 ; Call after making top-gate
@@ -30,26 +31,48 @@
   (define b_z barrier_height)
 
   ; Create right barrier insulator shell
+  ; (isegeo:set-default-boolean "ABA") ; Subtract from top-gate
+  (define barrier_right_insulator_id (isegeo:create-cuboid
+    (position a_x a_y a_z) 
+    (position b_x b_y b_z) 
+    "Insulator1"
+    "barrier_right_insulator"))
+
+  ; Create right barrier aluminum
+  (isegeo:set-default-boolean "ABA") ; Subtract from shell.
+  (define barrier_right_id (isegeo:create-cuboid
+    (position (+ a_x ot) (- a_y ot) a_z)
+    (position (- b_x ot) b_y (- b_z ot))
+    "Aluminum"
+    "barrier_right"))
+
+  ; flip x-coord around y-z plane
+  ; note that now a_x is the right x corner, and b_x is the left x_corner
+  (define a_x (- a_x))
+  (define b_x (- b_x))
+  ; Create left barrier insulator shell
   (isegeo:set-default-boolean "ABA") ; Subtract from top-gate
   (define barrier_left_insulator_id (isegeo:create-cuboid
     (position a_x a_y a_z) 
     (position b_x b_y b_z) 
     "Insulator1"
     "barrier_left_insulator"))
-  (isegeo:bool-unite (list barrier_left_insulator_id))
 
-  ; Create right barrier aluminum
+  ; Create left barrier aluminum
   (isegeo:set-default-boolean "ABA") ; Subtract from shell.
   (define barrier_left_id (isegeo:create-cuboid
-    (position (+ a_x ot) (- a_y ot) a_z)
-    (position (- b_x ot) b_y (- b_z ot))
+    (position (- a_x ot) (- a_y ot) a_z)
+    (position (+ b_x ot) b_y (- b_z ot))
     "Aluminum"
     "barrier_left"))
 
   ; Create left: mirror right barrier around y-plane
-  (define mirror (transform:reflection (position 0 0 0) (gvector 1 0 0)))
-  (define parts (list barrier_left_id barrier_left_insulator_id))
-  (isegeo:mirror-selected parts mirror #t)
+  ;(define mirror (transform:reflection (position 0 0 0) (gvector 1 0 0)))
+  ;(define parts (list barrier_right_id barrier_right_insulator_id))
+  ;(isegeo:mirror-selected parts mirror #t)
+
+  (create_contact_set barrier_right_id "barrier_right")
+  (create_contact_set barrier_left_id "barrier_left")
 
   ))
 
@@ -71,20 +94,23 @@
   (define b_y (- top_gate_width))
   (define b_z top_gate_height)
 
+  ; Fill in aluminum in shell.
+  (isegeo:set-default-boolean "BAB") ; Don't subtract from barrier.
+  (define top_gate_id (isegeo:create-cuboid
+    (position a_x (- a_y ot) a_z)
+    (position b_x (+ b_y ot) (- b_z ot))
+    "Aluminum"
+    "top_gate"))
+
+  (create_contact_set top_gate_id "top_gate")
+
   ; Create insulator shell.
+  (isegeo:set-default-boolean "BAB") ; Don't subtract from barrier.
   (isegeo:create-cuboid
     (position a_x a_y a_z)
     (position b_x b_y b_z)
     "Insulator1"
-    "top_gate")
-
-  ; Fill in aluminum in shell.
-  (isegeo:set-default-boolean "ABA") ; Subtract from shell.
-  (isegeo:create-cuboid
-    (position a_x (- a_y ot) a_z)
-    (position b_x (+ b_y ot) (- b_z ot))
-    "Aluminum"
-    "top_gate")
+    "top_gate_insulator")
 
   ))
 
@@ -110,15 +136,17 @@
     (position a_x a_y a_z)
     (position b_x b_y b_z)
     "Insulator1"
-    "plunger")
+    "plunger_insulator")
 
   ; Fill in aluminum
   (isegeo:set-default-boolean "ABA") ; Subtract from shell
-  (isegeo:create-cuboid
+  (define plunger_id (isegeo:create-cuboid
     (position (+ a_x ot) a_y a_z)
     (position (- b_x ot) (+ b_y ot) (- b_z ot))
     "Aluminum"
-    "plunger")
+    "plunger"))
+
+  (create_contact_set plunger_id "plunger")
 
   ))
 
@@ -146,19 +174,24 @@
     (position a_x a_y a_z)
     (position b_x b_y b_z)
     "Insulator1"
-    "side_gate"))
+    "side_gate_right_insulator"))
 
   (isegeo:set-default-boolean "ABA") ; Subtract from shell
   (define side_gate_id (isegeo:create-cuboid
     (position (+ a_x ot) (- a_y ot) a_z)
     (position b_x (+ b_y ot) (- b_z ot))
     "Aluminum"
-    "side_gate"))
+    "side_gate_right"))
 
   ; Create left: mirror right barrier around y-plane
   (define mirror (transform:reflection (position 0 0 0) (gvector 1 0 0)))
   (define parts (list side_gate_insulator_id side_gate_id))
-  (isegeo:mirror-selected parts mirror #t)
+  (define side_gate_left (isegeo:mirror-selected parts mirror #t))
+
+  (create_contact_set side_gate_id "side_gate_right")
+  (define a_x (- a_x)) ; flip a_x around y-z plane
+  (define side_gate_left_faces (find-body-id (position (- a_x delta) (- a_y delta) (+ a_z delta))))
+  (create_contact_set side_gate_left_faces "side_gate_left")
 
   ))
 
@@ -185,21 +218,28 @@
     (position domainX1 domainY1 0)
     (position domainX2 domainY2 (- oxide_thickness))
     "SiO2"
-    "substrate")
+    "substrate_insulator")
   
   ))
 
+(define create_contact_set (lambda (id_list name)
+  (isegeo:define-contact-set "name")
+  (isegeo:define-3d-contact (entity:faces id_list) name)
+
+  ))
+
 ; Run DEVISE commands
-(ise:clear) ; Reset DEVISE
+  (ise:clear) ; Reset DEVISE
 
-(create_top_gate)
-(create_barrier)
+  ; Create structures
+  (create_barrier)
+  (create_top_gate)
 
-(create_plunger)
-(create_side_gate)
+  (create_plunger)
+  (create_side_gate)
 
-(create_substrate)
+  (create_substrate)
 
-; (create_refinement)
-; 
-(ise:save-model "quad")
+  ; (create_refinement)
+   
+  (ise:save-model "quad")
