@@ -16,25 +16,18 @@ File {
 }
 
 Electrode {
-	{ Name="topGate1"	Voltage=0.5 Material="Aluminum"}
-	{ Name="barrierLeft1"	Voltage=0.6 Material="Aluminum"}
-	{ Name="barrierRight1"	Voltage=0.6 Material="Aluminum"}
-	{ Name="leadGateLeft1"	Voltage=2.5 Material="Aluminum"}
-	{ Name="leadGateRight1"	Voltage=2.5 Material="Aluminum"}
-	{ Name="source1" Voltage=0 Material="Aluminum"}
-	{ Name="drain1" Voltage=0 Material="Aluminum"}
-
-	{ Name="topGate2"	Voltage=1.1 Material="Aluminum"}
-	{ Name="barrierLeft2"	Voltage=0.7 Material="Aluminum"}
-	{ Name="barrierRight2"	Voltage=0.7 Material="Aluminum"}
-	{ Name="leadGateLeft2"	Voltage=2.6 Material="Aluminum"}
-	{ Name="leadGateRight2"	Voltage=2.6 Material="Aluminum"}
-	{ Name="source2" Voltage=0.1 Material="Aluminum"}
-	{ Name="drain2" Voltage=0.1 Material="Aluminum"}
+	{ Name="top_gate_contact"	Voltage=1.1 Material="Aluminum"}
+	{ Name="barrier_right_contact"	Voltage=0.6 Material="Aluminum"}
+	{ Name="barrier_left_contact"	Voltage=0.6 Material="Aluminum"}
+	{ Name="side_gate_left_contact"	Voltage=0.45 Material="Aluminum"}
+	{ Name="side_gate_right_contact"	Voltage=0.45 Material="Aluminum"}
+	{ Name="plunger_contact"	Voltage=0.65 Material="Aluminum"}
+	# { Name="source_wire_contact"	Voltage=0.0 Material="Aluminum"}
+	# { Name="drain_wire_contact"	Voltage=0.0 Material="Aluminum"}
 }
 
 Physics {
-	Temperature=20
+	Temperature=1
 	Fermi
 	Mobility(
 		DopingDep
@@ -46,7 +39,7 @@ Physics {
 	)
   	EffectiveIntrinsicDensity( BandGapNarrowing( OldSlotBoom ))
 
-	IncompleteIonization
+#	IncompleteIonization
 }
 #Physics(RegionInterface = "substrate/oxide") {
 #	charge(Conc=-1.5e+12)
