@@ -227,12 +227,12 @@
   ; top left corner, bottom side
   (define a_x (+ (- extend_far) delta))
   (define a_y (- 0 delta))
-  (define a_z (- (+ ot 0)))
+  (define a_z (- (+ oxide_thickness 0)))
 
   ; bottom right corner, top side
   (define b_x (+ a_x contact_width))
   (define b_y (- contact_width))
-  (define b_z (- (+ ot contact_depth)))
+  (define b_z (- (+ oxide_thickness contact_depth)))
 
   (isegeo:imprint-rectangular-wire (position a_x a_y a_z) (position b_x b_y a_z))
   (define source_wire_id (find-face-id (position (+ a_x delta) (- a_y delta) a_z)))
@@ -285,7 +285,7 @@
   (create_substrate) ; no contact set
 
   ; Create refinement windows
-  ; (create_source_drain)
+  (create_source_drain)
   (create_refinement)
    
   (ise:save-model "quad")

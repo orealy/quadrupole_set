@@ -16,14 +16,14 @@ File {
 }
 
 Electrode {
-	{ Name="top_gate_contact"	Voltage=1.1 Material="Aluminum"}
+	{ Name="top_gate_contact"	Voltage=1.3 Material="Aluminum"}
 	{ Name="barrier_right_contact"	Voltage=0.6 Material="Aluminum"}
 	{ Name="barrier_left_contact"	Voltage=0.6 Material="Aluminum"}
-	{ Name="side_gate_left_contact"	Voltage=0.45 Material="Aluminum"}
-	{ Name="side_gate_right_contact"	Voltage=0.45 Material="Aluminum"}
-	{ Name="plunger_contact"	Voltage=0.65 Material="Aluminum"}
-	# { Name="source_wire_contact"	Voltage=0.0 Material="Aluminum"}
-	# { Name="drain_wire_contact"	Voltage=0.0 Material="Aluminum"}
+	{ Name="side_gate_left_contact"	Voltage=0.50 Material="Aluminum"}
+	{ Name="side_gate_right_contact"	Voltage=0.40 Material="Aluminum"}
+	{ Name="plunger_contact"	Voltage=0.55 Material="Aluminum"}
+	{ Name="source_wire_contact"	Voltage=0.0 Material="Aluminum"}
+	{ Name="drain_wire_contact"	Voltage=0.0 Material="Aluminum"}
 }
 
 Physics {
